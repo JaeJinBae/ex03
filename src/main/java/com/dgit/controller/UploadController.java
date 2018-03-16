@@ -174,8 +174,6 @@ public class UploadController {
 	
 	
 	
-	
-	
 	@ResponseBody
 	@RequestMapping(value="displayFile",method=RequestMethod.GET)
 	public ResponseEntity<byte[]> displayFile(String filename){
