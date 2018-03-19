@@ -197,34 +197,32 @@ public class UploadController {
 	
 	@RequestMapping(value="/uploadPreview", method=RequestMethod.GET)
 	public String uploadPreviewForm(){
+		logger.info("[uploadPreview] GET");
 		return "uploadPreviewForm";
 	}
 	
 	@RequestMapping(value="/uploadPreview", method=RequestMethod.POST)
-	public ResponseEntity<List<String>> uploadPreviewResult(String writer, List<MultipartFile> files, Model model) throws IOException, Exception{
+	public String uploadPreviewResult(String writer, List<MultipartFile> files, Model model) throws IOException, Exception{
 		ResponseEntity<List<String>> entity=null;
 		
 		logger.info("[uploadPreview] POST");
 		logger.info("writer: "+writer);
+		System.out.println("파일 갯수="+files.size());
 		List<String> list = new ArrayList<>();
 		
 		for(MultipartFile f : files){
 			logger.info("file : " + f.getOriginalFilename()); 
 			
-			
+			//upload처리
 			String savedName=UploadFileUtils.uploadFile(outUploadPath, f.getOriginalFilename(), f.getBytes());
-			//list.add(outUploadPath + "/" + savedName);
+			list.add(outUploadPath + "/" + savedName);
 			
 		}
 		
-		
-		
-		//upload처리
-		/*String path=UploadFileUtils.uploadFile(outUploadPath, file.getOriginalFilename(), file.getBytes());
 		model.addAttribute("writer",writer);
-		model.addAttribute("filename", outUploadPath+path);*/
-		entity=new ResponseEntity<List<String>>(list, HttpStatus.OK);
-		return entity;
+		model.addAttribute("list",list);
+		
+		return "uploadPreviewResult";
 	}
 	
 	

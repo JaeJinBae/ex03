@@ -22,7 +22,7 @@
 <body>
 	<form id="f1" action="uploadPreview" method="post" enctype="multipart/form-data">
 		작성자 이름: <input type="text" name="writer" placeholder="작성자 이름"><br>
-		파일 선택: <input id="file" type="file" multiple="multiple" name="file"><br>
+		파일 선택: <input id="file" type="file" multiple="multiple" name="files"><br>
 		<input type="submit" value="전송">
 	</form>
 	<div id="dropBox">
