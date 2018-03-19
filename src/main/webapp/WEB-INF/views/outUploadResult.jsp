@@ -7,7 +7,7 @@
 <title>Insert title here</title>
 </head>
 <body>
-	text: ${test}<br>
+	text: ${test}<br><br>
 	file name: ${filename}<br>
 	
 	<img src="displayFile?filename=${filename}">

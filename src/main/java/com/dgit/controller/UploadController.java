@@ -15,8 +15,10 @@ import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -27,6 +29,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.dgit.util.MediaUtils;
+import com.dgit.util.UploadFileUtils;
 
 @Controller
 public class UploadController {
@@ -158,16 +161,69 @@ public class UploadController {
 	}
 	
 	@ResponseBody
-	@RequestMapping(value="/uploadDrag", method=RequestMethod.POST)
-	public ResponseEntity<String> uploadDragReuslt(String test,List<MultipartFile> files){
-		logger.info("[uploadDrag] form POST");
-		logger.info("test: "+test);
+	@RequestMapping(value="/uploadDrag", method= RequestMethod.POST)
+	public ResponseEntity<List<String>> uploadDragResult(String test, List<MultipartFile> files){
+		logger.info("uploadDragResult post");
+		ResponseEntity<List<String>> entity = null;
+		logger.info("innerMultiUploadResult(), length: "+files.size());
+		logger.info("test : " + test);
+		List<String> list = new ArrayList<>();
 		
-		for(MultipartFile file: files){
-			logger.info("filename: "+ file.getOriginalFilename());
+		try{
+			for(MultipartFile f : files){
+				logger.info("file : " + f.getOriginalFilename()); 
+				
+				/*File dir = new File(outUploadPath);
+				if(!dir.exists()){
+					dir.mkdirs();
+				}
+				
+				UUID uid = UUID.randomUUID();
+				String savedName = uid.toString() + "_" + f.getOriginalFilename();
+				File imgFile = new File(outUploadPath, saveName);
+				
+				FileCopyUtils.copy(f.getBytes(), imgFile);*/
+				String savedName=UploadFileUtils.uploadFile(outUploadPath, f.getOriginalFilename(), f.getBytes());
+				list.add(outUploadPath + "/" + savedName);
+				
+			}
+			entity = new ResponseEntity<List<String>>(list, HttpStatus.OK);
+		}catch(Exception e){
+			e.printStackTrace();
+			entity = new ResponseEntity<List<String>>(list, HttpStatus.BAD_REQUEST);
 		}
-		ResponseEntity<String> entity=null;
+		return entity;
+	}
+	
+	@RequestMapping(value="/uploadPreview", method=RequestMethod.GET)
+	public String uploadPreviewForm(){
+		return "uploadPreviewForm";
+	}
+	
+	@RequestMapping(value="/uploadPreview", method=RequestMethod.POST)
+	public ResponseEntity<List<String>> uploadPreviewResult(String writer, List<MultipartFile> files, Model model) throws IOException, Exception{
+		ResponseEntity<List<String>> entity=null;
 		
+		logger.info("[uploadPreview] POST");
+		logger.info("writer: "+writer);
+		List<String> list = new ArrayList<>();
+		
+		for(MultipartFile f : files){
+			logger.info("file : " + f.getOriginalFilename()); 
+			
+			
+			String savedName=UploadFileUtils.uploadFile(outUploadPath, f.getOriginalFilename(), f.getBytes());
+			//list.add(outUploadPath + "/" + savedName);
+			
+		}
+		
+		
+		
+		//upload처리
+		/*String path=UploadFileUtils.uploadFile(outUploadPath, file.getOriginalFilename(), file.getBytes());
+		model.addAttribute("writer",writer);
+		model.addAttribute("filename", outUploadPath+path);*/
+		entity=new ResponseEntity<List<String>>(list, HttpStatus.OK);
 		return entity;
 	}
 	
@@ -179,7 +235,7 @@ public class UploadController {
 		ResponseEntity<byte[]> entity=null;
 		InputStream in=null;
 		
-		logger.info("[displayFilename]: "+filename);
+		logger.info("[displayFilename]: "+filename); // /2018/03/19/asdf.jpg
 		
 		try {
 			String formatName=filename.substring(filename.lastIndexOf(".")+1);
@@ -187,13 +243,32 @@ public class UploadController {
 			HttpHeaders headers=new HttpHeaders();
 			headers.setContentType(type);
 			
-			in=new FileInputStream(outUploadPath+"/"+filename);
+			in=new FileInputStream(filename);
 			
 			entity=new ResponseEntity<>(IOUtils.toByteArray(in),headers,HttpStatus.CREATED);
 		} catch (Exception e) {
 			e.printStackTrace();
 			entity=new ResponseEntity<byte[]>(HttpStatus.BAD_REQUEST);
 		}
+		return entity;
+	}
+	
+	@ResponseBody
+	@RequestMapping(value="deleteFile", method = RequestMethod.GET)
+	public ResponseEntity<String> deleteFile(String filename){
+		ResponseEntity<String> entity = null;
+		logger.info("deleteFile()");
+		logger.info("filename : " + filename);
+		try{
+			File del = new File(filename);
+			if(del.exists()){
+				del.delete();
+			}
+			entity = new ResponseEntity<String>("success", HttpStatus.OK);			
+		}catch(Exception e){
+			entity = new ResponseEntity<String>("success", HttpStatus.BAD_REQUEST);
+		}
+		
 		return entity;
 	}
 }
