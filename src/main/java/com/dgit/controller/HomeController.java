@@ -19,9 +19,6 @@ public class HomeController {
 	
 	private static final Logger logger = LoggerFactory.getLogger(HomeController.class);
 	
-	/**
-	 * Simply selects the home view to render by returning its name.
-	 */
 	@RequestMapping(value = "/", method = RequestMethod.GET)
 	public String home(Locale locale, Model model) {
 		logger.info("Welcome home! The client locale is {}.", locale);
@@ -36,4 +33,30 @@ public class HomeController {
 		return "home";
 	}
 	
+	@RequestMapping(value="/doA",method=RequestMethod.GET)
+	public String doAGet(Model model){
+		logger.info("[doAAAAAA] GET =======================================");
+		return "doA";
+	}
+	
+	@RequestMapping(value="/doB",method=RequestMethod.GET)
+	public String doBGet(Model model){
+		logger.info("[doBBBBBB] GET =======================================");
+		model.addAttribute("result","doB의 result!");
+		return "doB";
+	}
+	
+	@RequestMapping(value="/test1",method=RequestMethod.GET)
+	public String test1(Model model){
+		logger.info("[test1 ~~~~~] GET =======================================");
+		model.addAttribute("result","test1의 result!");
+		return "test1";
+	}
+	
+	@RequestMapping(value="/login",method=RequestMethod.GET)
+	public String loginGet(Model model){
+		logger.info("[login ~~~~~] GET =======================================");
+		model.addAttribute("result","doB의 result!");
+		return "login";
+	}
 }
